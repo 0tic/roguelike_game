@@ -412,7 +412,7 @@ nextturn = tkinter.ttk.Button(app, text='Submit Command', command=nextCommand)
 tempHealth = tkinter.IntVar(app,value=0)
 
 #creates the leaderboard button, when pushed, computes the showLeaderboard function
-leaderboard = tkinter.ttk.Button(app,text='Stats',command=showLeaderboard)
+leaderboard = tkinter.ttk.Button(app,text='Leaderboard',command=showLeaderboard)
 leaderboard.grid(row = 0, column=20)
 
 #creates leaderboard label and entry widgets
