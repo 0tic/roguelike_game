@@ -71,7 +71,6 @@ def pickUp():
     '''
     #resets the baseline variables for user stats
     totalArmor = 0
-    totalAttack = 5
     #checks to see if the inventory is under the maximum amount of slots
     if len(inventory) < inventorySize.get():
         #adds the item into the inventory
@@ -100,16 +99,21 @@ def battle():
     '''
     #makes sure that the monster does not have negative health
     if 0 < monster['health']:
+        #figures out the attack value from user
+        dmg = 0
+        for weapon in inventory:
+            if weapon['type'] == 'weapon':
+                for x in range(weapon['attack_mult']):
+                    dmg += random.randrange(1,weapon['attack_di'])
+                dmg += weapon['bonus_atk']
         #subtracts the monsters health from the attack value from the user
-        monster['health'] = monster['health'] - attackVal.get()
-        eventStatsLabel['text'] = 'Name: ' + monster['name'] + '\nHealth: ' + str(monster['health']) + '\nDamage: ' + str(monster['attack']) + '\n'
-        damageDone.set(damageDone.get() + attackVal.get())
+        monster['health'] = monster['health'] - dmg
+        eventStatsLabel['text'] = 'Name: ' + monster['name'] + '\nHealth: ' + str(monster['health']) + '\nDamage: ' + str(monster['attack_inf']) + '\n'
+        damageDone.set(damageDone.get() + dmg)
         #if the monsters health reaches 0 or below 0, then the user is prompted with the message of defeating the monster
         if monster['health'] <= 0:
             eventLabel['text'] = 'You have successfully defeated the ' + monster["name"] + '.'
             createButtons('next turn')
-            #adds data for the total amount of monsters defeated for the stats section of the app
-            monstersDefeated.set(monstersDefeated.get() + 1)
             eventStatsLabel.grid_remove()
             #adds the health back to the monster for further encounters
             monster['health'] = tempHealth.get()
@@ -119,23 +123,26 @@ def battle():
         createButtons('next turn')
     #if the users health is above zero, the following conditional commences
     if 0 < int(health.get()) and 0 < monster['health']:
+        #calculates monster damage
+        dmg = 0
+        for x in range(monster['attack_mult']):
+            dmg += random.randrange(1,monster['attack_di'])
+        dmg += monster['bonus_atk']
         #checks if the user has armor
-        for x in inventoryDictNames:
+        for x in inventory:
             if x['type'] == 'armor':
                 hasArmor = True
                 break
         #if the user has armor, the damage that they receive is reduced
         if hasArmor == True:
-            if (monster['attack'] - armorVal.get()) >= 0:
-                health.set(health.get() - (monster['attack'] - armorVal.get()))
-            playerStatsLabel['text'] = 'Health: ' + str(health.get()) + '\nArmor: ' + str(armorVal.get()) + '\nAttack: ' + str(attackVal.get())
-            totalDamageReceived.set(totalDamageReceived.get() + (monster['attack'] - armorVal.get()))
+            if (dmg - armorVal.get()) >= 0:
+                health.set(health.get() - (dmg - armorVal.get()))
+            playerStatsLabel['text'] = 'Health: ' + str(health.get()) + '\nArmor: ' + str(armorVal.get())
             lostGame()
         #if the user does not have armor, the damage that they receive is not reduced
         else:
-            health.set(health.get() - monster['attack'])
-            playerStatsLabel['text'] = 'Health: ' + str(health.get()) + '\nArmor: ' + str(armorVal.get()) + '\nAttack: ' + str(attackVal.get())
-            totalDamageReceived.set(totalDamageReceived.get() + (monster['attack']))
+            health.set(health.get() - dmg)
+            playerStatsLabel['text'] = 'Health: ' + str(health.get()) + '\nArmor: ' + str(armorVal.get())
             lostGame()
     #checks if the user has lost the game
     else:
