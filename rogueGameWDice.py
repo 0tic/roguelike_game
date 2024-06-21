@@ -166,8 +166,10 @@ def run():
         #if the armor value is greater than the dmg, then health shouldn't be gained
         if (dmg - armorVal.get()) >= 0:
             health.set(health.get() - (dmg - armorVal.get()))
+            eventLabel['text'] = 'You have failed to run away from ' + monster['name'] + ', and have taken ' + str(dmg - armorVal.get()) + ' damage.\n You can either attack or attempt to run again.'
+        else:
+            eventLabel['text'] = 'You have failed to run away from ' + monster['name'] + ', and have taken ' + str(0) + ' damage.\n You can either attack or attempt to run again.'
         playerStatsLabel['text'] = 'Health: ' + str(health.get()) + '\nArmor: ' + str(armorVal.get())
-        eventLabel['text'] = 'You have failed to run away from ' + monster['name'] + ', and have taken ' + str(dmg - armorVal.get()) + ' damage.\n You can either attack or attempt to run again.'
         lostGame()
     #if the user successfully runs away from the monster, they are prompted with the following message
     else:
@@ -285,7 +287,7 @@ def toggleInv():
                 else:
                     tkinter.Label(app,text= x["name"] + ' - ' + str(x['effect'])).grid(row=position,column=1)
                 if x['name'] == 'Health Potion':
-                    tkinter.ttk.Button(app,text='Use',command=lambda: useItem(x['name'])).grid(row=position,column=3)
+                    tkinter.ttk.Button(app,text='Use',command=lambda name=x['name']: useItem(name)).grid(row=position,column=3)
                 tkinter.ttk.Button(app,text='Drop ' + x['name'],command= lambda name=x['name']: drop(name)).grid(row=position,column=2)
                 position += 1
         toggle = False
@@ -331,7 +333,7 @@ def useItem(itemName):
                 #applies the necssary effect of the item and makes the change on the GUI for the user to see
                 health.set(100)
                 playerStatsLabel['text'] = 'Health: ' + str(health.get()) + '\nArmor: ' + str(armorVal.get())
-                hasItem = False
+            hasItem = False
             
         print(itemName + ' has been used')
         toggleInv()
