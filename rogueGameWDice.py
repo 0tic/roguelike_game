@@ -106,7 +106,7 @@ def battle():
                 for x in range(weapon['attack_mult']):
                     dmg += random.randrange(1,weapon['attack_di'])
                 dmg += weapon['bonus_atk']
-                print(weapon['name'] + "rolled " + str(dmg) + "as damage from " + weapon['attack_inf'] + ".")
+                print(weapon['name'] + " rolled " + str(dmg) + " as damage from " + weapon['attack_inf'] + ".")
         #subtracts the monsters health from the attack value from the user
         monster['health'] = monster['health'] - dmg
         eventStatsLabel['text'] = 'Name: ' + monster['name'] + '\nHealth: ' + str(monster['health']) + '\nDamage: ' + str(monster['attack_inf']) + '\n'
@@ -129,7 +129,7 @@ def battle():
         for x in range(monster['attack_mult']):
             dmg += random.randrange(1,monster['attack_di'])
         dmg += monster['bonus_atk']
-        print(monster['name'] + "rolled " + str(dmg) + "as damage from " + monster['attack_inf'] + ".")
+        print(monster['name'] + " rolled " + str(dmg) + " as damage from " + monster['attack_inf'] + ".")
         #checks if the user has armor
         for x in inventory:
             if x['type'] == 'armor':
@@ -163,7 +163,7 @@ def run():
         for x in range(monster['attack_mult']):
             dmg += random.randrange(1,monster['attack_di'])
         dmg += monster['bonus_atk']
-        print(monster['name'] + "rolled " + str(dmg) + "as damage from " + monster['attack_inf'] + ".")
+        print(monster['name'] + " rolled " + str(dmg) + " as damage from " + monster['attack_inf'] + ".")
         #if the armor value is greater than the dmg, then health shouldn't be gained
         if (dmg - armorVal.get()) >= 0:
             health.set(health.get() - (dmg - armorVal.get()))
@@ -218,7 +218,7 @@ def nextScenario():
             for x in range(trap['attack_mult']):
                 dmg += random.randrange(1,trap['attack_di'])
             dmg += trap['bonus_atk']
-            print(trap['name'] + "rolled " + str(dmg) + "as damage from " + trap['attack_inf'] + ".")
+            print(trap['name'] + " rolled " + str(dmg) + " as damage from " + trap['attack_inf'] + ".")
             eventLabel['text'] = 'You encountered a trap and failed to evade it. You took '  + str(dmg - armorVal.get()) + ' damage.'
             if (dmg - armorVal.get()) >= 0:
                 health.set(health.get() - (dmg - armorVal.get()))
