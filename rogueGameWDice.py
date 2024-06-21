@@ -399,7 +399,7 @@ def showLeaderboard():
     global temp_leaderboard
     if toggle_leaderboard == True:
         temp_leaderboard = eventLabel['text']
-        leaderboard['text'] = 'Hide Leadboard'
+        leaderboard['text'] = 'Hide Leaderboard'
         if len(leaderboard_dict) == 0:
                 eventLabel['text'] = 'There is no user saved in the leaderboards yet.'
         #if there are leaderboards saved, it is displayed in the GUI
