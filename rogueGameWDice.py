@@ -6,7 +6,8 @@ import random
 import json
 
 #TODO:
-#one of the label says that you can take negative damage when you actually don't during trap
+#use health potions somehow drops random items from inv
+#able to not click an option and submit next command and bypass situation?
 
 with open('encountersWDice.json') as json_data:
     data = json.load(json_data)
@@ -217,9 +218,11 @@ def nextScenario():
                 dmg += random.randrange(1,trap['attack_di'])
             dmg += trap['bonus_atk']
             print(trap['name'] + " rolled " + str(dmg) + " as damage from " + trap['attack_inf'] + ".")
-            eventLabel['text'] = 'You encountered a trap and failed to evade it. You took '  + str(dmg - armorVal.get()) + ' damage.'
             if (dmg - armorVal.get()) >= 0:
                 health.set(health.get() - (dmg - armorVal.get()))
+                eventLabel['text'] = 'You encountered a trap and failed to evade it. You took '  + str(dmg - armorVal.get()) + ' damage.'
+            else:
+                eventLabel['text'] = 'You encountered a trap and failed to evade it. You took '  + str(0) + ' damage.'
             playerStatsLabel['text'] = 'Health: ' + str(health.get()) + '\nArmor: ' + str(armorVal.get())
             createButtons('next turn')
             lostGame()
