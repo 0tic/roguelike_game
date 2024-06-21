@@ -78,17 +78,14 @@ def pickUp():
         inventory.append(item)
         if item["name"] == 'Backpack':
             inventorySize.set(inventorySize.get() + 2)
-        #equips the items from the inventory and makes the adjustments on the GUI with the new armor or attack
+        #equips the items from the inventory and makes the adjustments on the GUI with the new armor
         #that the user has acquired from picking up the items
         for x in inventory:
             if x['type'] == 'armor':
                 totalArmor += x['defense']
-            if x['type'] == 'weapon':
-                totalAttack += x['attack']
         #sets the values to the GUI so that the user can see the changes of picking up the items
         armorVal.set(totalArmor)
-        attackVal.set(totalAttack)
-        playerStatsLabel['text'] = 'Health: ' + str(health.get()) + '\nArmor: ' + str(armorVal.get()) + '\nAttack: ' + str(attackVal.get())
+        playerStatsLabel['text'] = 'Health: ' + str(health.get()) + '\nArmor: ' + str(armorVal.get())
         #goes to the next encounter if the user picks up an item successfully
         nextScenario()
     #if the user has reached the maximum size of their inventory, they are prompted with the following message
@@ -160,7 +157,7 @@ def run():
         #if the armor value is greater than the dmg, then health shouldn't be gained
         if (dmg - armorVal.get()) >= 0:
             health.set(health.get() - (dmg - armorVal.get()))
-        playerStatsLabel['text'] = 'Health: ' + str(health.get()) + '\nArmor: ' + str(armorVal.get()) + '\nAttack: ' + str(attackVal.get())
+        playerStatsLabel['text'] = 'Health: ' + str(health.get()) + '\nArmor: ' + str(armorVal.get())
         eventLabel['text'] = 'You have failed to run away from ' + monster['name'] + ', and have taken ' + str(dmg - armorVal.get()) + ' damage.\n You can either attack or attempt to run again.'
         lostGame()
     #if the user successfully runs away from the monster, they are prompted with the following message
@@ -214,7 +211,7 @@ def nextScenario():
             eventLabel['text'] = 'You encountered a trap and failed to evade it. You took '  + str(dmg - armorVal.get()) + ' damage.'
             if (dmg - armorVal.get()) >= 0:
                 health.set(health.get() - (dmg - armorVal.get()))
-            playerStatsLabel['text'] = 'Health: ' + str(health.get()) + '\nArmor: ' + str(armorVal.get()) + '\nAttack: ' + str(attackVal.get())
+            playerStatsLabel['text'] = 'Health: ' + str(health.get()) + '\nArmor: ' + str(armorVal.get())
             createButtons('next turn')
             lostGame()
     #adds one to the turn number because the previous turn has been completed
@@ -317,12 +314,12 @@ def useItem(itemName):
             if health.get() <= 90:
                 #applies the necssary effect of the item and makes the change on the GUI for the user to see
                 health.set(health.get() + 10)
-                playerStatsLabel['text'] = 'Health: ' + str(health.get()) + '\nArmor: ' + str(armorVal.get()) + '\nAttack: ' + str(attackVal.get())
+                playerStatsLabel['text'] = 'Health: ' + str(health.get()) + '\nArmor: ' + str(armorVal.get())
             else:
                 #if the user has between 91-100 health, they don't go over 100 because 100 is the maximum health
                 #applies the necssary effect of the item and makes the change on the GUI for the user to see
                 health.set(100)
-                playerStatsLabel['text'] = 'Health: ' + str(health.get()) + '\nArmor: ' + str(armorVal.get()) + '\nAttack: ' + str(attackVal.get())
+                playerStatsLabel['text'] = 'Health: ' + str(health.get()) + '\nArmor: ' + str(armorVal.get())
                 hasItem = False
             
         print(itemName + ' has been used')
@@ -335,12 +332,9 @@ def drop(item):
             print(x['name'] + ' has beed dropped')
             if x['name'] == 'Backpack':
                 inventorySize.set(inventorySize.get() - 2)
-            elif x['type'] == 'weapon':
-                attackVal.set(attackVal.get() - x['attack'])
-                playerStatsLabel['text'] = 'Health: ' + str(health.get()) + '\nArmor: ' + str(armorVal.get()) + '\nAttack: ' + str(attackVal.get())
             elif x['type'] == 'armor':
                 armorVal.set(armorVal.get() - x["defense"])
-                playerStatsLabel['text'] = 'Health: ' + str(health.get()) + '\nArmor: ' + str(armorVal.get()) + '\nAttack: ' + str(attackVal.get())
+                playerStatsLabel['text'] = 'Health: ' + str(health.get()) + '\nArmor: ' + str(armorVal.get())
             inventory.remove(x)
             toggleInv()
             toggleInv()
@@ -367,12 +361,11 @@ def restart():
     #continues to reset all the necessary variables back to their starting values
     health.set(100)
     armorVal.set(0)
-    attackVal.set(5)
     damageDone.set(0)
     itemsUsed.set(0)
     inventorySize.set(3)
     #resets all the stats given to the user in the GUI
-    playerStatsLabel['text'] = 'Health: ' + str(health.get()) + '\nArmor: ' + str(armorVal.get()) + '\nAttack: ' + str(attackVal.get())
+    playerStatsLabel['text'] = 'Health: ' + str(health.get()) + '\nArmor: ' + str(armorVal.get())
     eventStatsLabel['text'] = ''
     #clears the inventory
     inventory = []
@@ -427,12 +420,11 @@ usernameEntry.grid(row=4,column=1)
 usernameLabel.grid_remove()
 usernameEntry.grid_remove()
 
-#creates the heatlh, armorVal, and attackVal integer variables in tkinter so they can be manipulated as the game goes on
+#creates the heatlh, and armorVal integer variables in tkinter so they can be manipulated as the game goes on
 health = tkinter.IntVar(app,value=100)
 armorVal = tkinter.IntVar(app,value=0)
-attackVal = tkinter.IntVar(app,value=5)
 #creates the player stats label which shows the player their health,armor, and attack in the GUI
-playerStatsLabel = tkinter.ttk.Label(app,text = 'Health: ' + str(health.get()) + '\nArmor: ' + str(armorVal.get()) + '\nAttack: ' + str(attackVal.get()))
+playerStatsLabel = tkinter.ttk.Label(app,text = 'Health: ' + str(health.get()) + '\nArmor: ' + str(armorVal.get()))
 playerStatsLabel.grid(row=20,column=20)
 
 inventorySize = tkinter.IntVar(app,value=3)
