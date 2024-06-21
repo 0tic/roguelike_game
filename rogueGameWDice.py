@@ -6,7 +6,9 @@ import random
 import json
 
 #TODO:
-#
+#add dice rolls to print in terminal/console
+#finish leaderboard
+#enter username doesn't disappear when restart button is pushed
 
 with open('encountersWDice.json') as json_data:
     data = json.load(json_data)
@@ -94,6 +96,7 @@ def battle():
     damage the player does to the monster and how much the monster does to user
     then checks if the user has lost the game
     '''
+    hasArmor = False
     #makes sure that the monster does not have negative health
     if 0 < monster['health']:
         #figures out the attack value from user
@@ -423,6 +426,9 @@ usernameLabel.grid(row=3,column=1)
 usernameEntry.grid(row=4,column=1)
 usernameLabel.grid_remove()
 usernameEntry.grid_remove()
+
+#sets toggle for show inventory usage
+toggle = True
 
 #creates the heatlh, and armorVal integer variables in tkinter so they can be manipulated as the game goes on
 health = tkinter.IntVar(app,value=100)
