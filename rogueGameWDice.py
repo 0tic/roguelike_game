@@ -6,8 +6,7 @@ import random
 import json
 
 #TODO:
-#finish leaderboard
-#enter username doesn't disappear when restart button is pushed
+#one of the label says that you can take negative damage when you actually don't during trap
 
 with open('encountersWDice.json') as json_data:
     data = json.load(json_data)
@@ -264,7 +263,6 @@ def toggleInv():
     '''
     global toggle
     global temp
-    string = ''
     #if the inventory is hidden, it shows the user their inventory
     if toggle == True:
         temp = eventLabel['text']
@@ -361,6 +359,9 @@ def restart():
     global inventory
     #adds all the data form the previous session into the necessary variables for graphing
     scoreData.append(score.get())
+    #adds name to leaderboard list
+    if usernameEntry.get() != "":
+        leaderboard_dict[usernameEntry.get()] = score.get()
     #resets the event label back to the very start
     eventLabel['text'] = 'You have entered the cave and have found a forked pathway, do you wish to go left or right?'
     #resets all the necessary variables back to their starting values
@@ -384,11 +385,43 @@ def restart():
     createButtons('start')
     eventStatsLabel.grid()
     invButton.grid()
+    #removes the username entry and label info
+    usernameEntry.grid_remove()
+    usernameLabel.grid_remove()
+    #removes any previous text in username entry
+    usernameEntry.delete(0,tkinter.END)
 
 def showLeaderboard():
     '''
     shows leaderboard
     '''
+    global toggle_leaderboard
+    global temp_leaderboard
+    if toggle_leaderboard == True:
+        temp_leaderboard = eventLabel['text']
+        leaderboard['text'] = 'Hide Leadboard'
+        if len(leaderboard_dict) == 0:
+                eventLabel['text'] = 'There is no user saved in the leaderboards yet.'
+        #if there are leaderboards saved, it is displayed in the GUI
+        else:
+            #sorts leaderboard
+            sorted_leaderboard = {}
+            for key in sorted(leaderboard_dict,key = leaderboard_dict.get,reverse=True):
+                sorted_leaderboard[key] = leaderboard_dict[key]
+            #prints leaderboard
+            position = 3
+            eventLabel['text'] = 'Leaderboard:'
+            for x, y in sorted_leaderboard.items():
+                tkinter.Label(app,text= x + ' -  ' + str(y)).grid(row=position,column=1)
+                position += 1
+        toggle_leaderboard = False
+    elif toggle_leaderboard == False:
+        leaderboard['text'] = "Leaderboard"
+        eventLabel['text'] = temp_leaderboard
+        toggle_leaderboard = True
+        for widget in app.grid_slaves():
+            if (int(widget.grid_info()['column']) >= 1 or int(widget.grid_info()['column']) <= 3) and (int(widget.grid_info()['row']) > 2 and int(widget.grid_info()['row']) < 17):
+                widget.destroy()
 
 #starts the app in tkinter
 app = tkinter.Tk()
@@ -420,6 +453,7 @@ tempHealth = tkinter.IntVar(app,value=0)
 #creates the leaderboard button, when pushed, computes the showLeaderboard function
 leaderboard = tkinter.ttk.Button(app,text='Leaderboard',command=showLeaderboard)
 leaderboard.grid(row = 0, column=20)
+leaderboard_dict = {}
 
 #creates leaderboard label and entry widgets
 username = tkinter.StringVar(app)
@@ -432,6 +466,8 @@ usernameEntry.grid_remove()
 
 #sets toggle for show inventory usage
 toggle = True
+#sets totggle for show leaderboard usage
+toggle_leaderboard  = True
 
 #creates the heatlh, and armorVal integer variables in tkinter so they can be manipulated as the game goes on
 health = tkinter.IntVar(app,value=100)
