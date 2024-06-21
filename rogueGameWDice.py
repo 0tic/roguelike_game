@@ -6,10 +6,7 @@ import random
 import json
 
 #TODO:
-#fix battle() function
-#fix attackVal, there really isn't a constant attack val anymore with the dice
-#make it so only two weapons can be equipped so I am not trying to cycle through all weapons in inventory to find total attack value  against monster
-#create leaderboard function
+#
 
 with open('encountersWDice.json') as json_data:
     data = json.load(json_data)
