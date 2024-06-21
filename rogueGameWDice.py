@@ -6,7 +6,6 @@ import random
 import json
 
 #TODO:
-#add dice rolls to print in terminal/console
 #finish leaderboard
 #enter username doesn't disappear when restart button is pushed
 
