@@ -8,42 +8,65 @@ import json
 #TODO:
 #use health potions somehow drops random items from inv
 #able to not click an option and submit next command and bypass situation?
+#does monster health reset after mid attack then a successful run?
 
+#loads all the monster, trap, and item data from the JSON file
 with open('encountersWDice.json') as json_data:
     data = json.load(json_data)
 
 
 def createButtons(type):
+    '''
+    creates the necessary buttons that the user can choose from so that they can
+    do the following commands depending on specific scenarios
+    destroys previous buttons if any before constructing the new ones based on the scenario
+    creates the submit command button for the user to click after they have chosen their option/button
+    '''
+    #if the scenario is a monster, then the user gets two options, to either attack or run
     if type == 'monster':
         choices = {
             "Attack" : "Attack",
             "Run" : "Run"
         }
+    #if the scenario is an item, then the user gets two options, to either pick up the item or to not pick up the item
     elif type == 'item':
         choices = {
             "Pick Up" : "Pick up",
             "Don't Pick Up" : "Next Turn"
         }
+    #if at the end of a scenario, then the uesr gets the option to move on to the next scenario
     elif type == 'next turn':
         choices = {
             "Next Turn" : "Next Turn"
         }
+    #if at the start of the game, the user gets two options, to either turn left or turn right
     elif type == 'start':
         choices = {
             "Left" : "Left",
             "Right" : "Right"
         }
+    #destroys any previous buttons from previous scenarios
     for widget in app.grid_slaves():
         if int(widget.grid_info()['column']) == 1 and int(widget.grid_info()['row']) > 4:
             widget.destroy()
     position = 17
+    #creates the new buttons based on the parameter inputted into the function
     for (text,value) in choices.items():
         tkinter.Radiobutton(app,text=text,value=value,variable=choice).grid(row=position,column=1)
         position += 1
+    #creates the submit button which the user can click so that whatever option the user has picked is computed
     nextturn = tkinter.ttk.Button(app, text='Submit Command', command=nextCommand)
     nextturn.grid(row=position+1,column=1)
 
 def nextCommand():
+    '''
+    function that computes when the nextturn button is pressed 
+    first checks if any of the conditions for the game to be lost is true
+    based on the radio button selected by the user when the nextturn button is pressed redirects to the specific
+    function
+    computes the score and updates teh turn number and score labels on the GUI
+    '''
+    #checks if any of the conditions for losing is true
     lostGame()
     if (turnNumber.get() == 0 and (choice.get().lower() == 'left' or choice.get().lower() == 'right')):
         nextScenario()
@@ -73,6 +96,7 @@ def pickUp():
     if len(inventory) < inventorySize.get():
         #adds the item into the inventory
         inventory.append(item)
+        #if the item is a backpack, increases the inventory size
         if item["name"] == 'Backpack':
             inventorySize.set(inventorySize.get() + 2)
         #equips the items from the inventory and makes the adjustments on the GUI with the new armor
@@ -108,6 +132,7 @@ def battle():
                 print(weapon['name'] + " rolled " + str(dmg) + " as damage from " + weapon['attack_inf'] + ".")
         #subtracts the monsters health from the attack value from the user
         monster['health'] = monster['health'] - dmg
+        #updates the label on the GUI with depleted health
         eventStatsLabel['text'] = 'Name: ' + monster['name'] + '\nHealth: ' + str(monster['health']) + '\nDamage: ' + str(monster['attack_inf']) + '\n'
         damageDone.set(damageDone.get() + dmg)
         #if the monsters health reaches 0 or below 0, then the user is prompted with the message of defeating the monster
@@ -121,7 +146,8 @@ def battle():
     else:
         eventLabel['text'] = 'You have successfully defeated the ' + monster["name"] + '.'
         createButtons('next turn')
-    #if the users health is above zero, the following conditional commences
+    #if the users health is above zero and the monsters health has not reached 0, then the monster
+    #attacks back
     if 0 < int(health.get()) and 0 < monster['health']:
         #calculates monster damage
         dmg = 0
@@ -156,8 +182,9 @@ def run():
     if the user unsuccessfully runs away from the monster, the monster gets a free hit on the user
     '''
     chance = np.random.rand(1)
-    #the user has a 50% chance of running away from the monster
+    #the user has a set 50% chance of running away from the monster
     if 0 <= chance <= 0.5:
+        #if the user fails to run away, monster damage is computed
         dmg = 0
         for x in range(monster['attack_mult']):
             dmg += random.randrange(1,monster['attack_di'])
@@ -169,7 +196,9 @@ def run():
             eventLabel['text'] = 'You have failed to run away from ' + monster['name'] + ', and have taken ' + str(dmg - armorVal.get()) + ' damage.\n You can either attack or attempt to run again.'
         else:
             eventLabel['text'] = 'You have failed to run away from ' + monster['name'] + ', and have taken ' + str(0) + ' damage.\n You can either attack or attempt to run again.'
+        #updates GUI labels
         playerStatsLabel['text'] = 'Health: ' + str(health.get()) + '\nArmor: ' + str(armorVal.get())
+        #checks if any conditions of losing game is true after the possiblity of player health reaching <=0
         lostGame()
     #if the user successfully runs away from the monster, they are prompted with the following message
     else:
@@ -177,6 +206,20 @@ def run():
         createButtons('next turn')
 
 def nextScenario():
+    '''
+    computes the next scenario, there is 1/3 chance of encountering a monster, 1/3 chance of encountering a trap,
+    and 1/3 chance of encountering an item
+
+    if a monster is encountered, it chooses a random monster from the JSON file, sets the temporary health so that if
+    the monster is killed, the health goes back to full so that if the monster is encountered again, the health isn't 0
+    finally updates the labels displays name, health, damage info, and following options for user
+
+    if an item is encountered, it chooses a random item from the JSON file, if the item is armor, the defense is displayed
+    if the item is a utility item, then the effect is displayed, if the item is a weapon, the damage is displayed
+
+    if a trap is encountered, it chooses a random trap from the JSON file, there is a 25% chance of evading the trap,
+    if there is a failed evation, then damage is computed and the conditions of losing are checked
+    '''
     chance = np.random.rand(1)
     eventStatsLabel.grid()
     #monsters
@@ -193,6 +236,7 @@ def nextScenario():
         randomInt = random.randrange(0,len(data['items']))
         global item
         item = data['items'][randomInt]
+        #if the type of item is 'armor', it displays the necessary information for an armor type
         if item['type'] == 'armor':
             eventStatsLabel['text'] = 'Name: ' +  item['name'] + '\nArmor: ' + str(item['defense']) + '\n'
             eventLabel['text'] = 'You found a ' + item['name'] + '. Do you wish to pick it up?'
@@ -207,12 +251,15 @@ def nextScenario():
         createButtons('item')
     #traps
     else:
+        #chooses random trap from JSON file/data
         randomInt = random.randrange(0,len(data['traps']))
         trap = data['traps'][randomInt]
+        #checks if the user evades the trap
         if random.randrange(0,101) <= 25:
             eventStatsLabel['text'] = 'Name: ' +  trap['name'] + '\nDamage: ' + trap['attack_inf'] + '\n'
             eventLabel['text'] = 'You encountered a trap, however, you have successfully evaded it.'
             createButtons('next turn')
+        #failed evation of trap, then computes damage from the trap to the user
         else:
             eventStatsLabel['text'] = 'Name: ' +  trap['name'] + '\nDamage: ' + trap['attack_inf'] + '\n'
             dmg = 0
@@ -227,6 +274,7 @@ def nextScenario():
                 eventLabel['text'] = 'You encountered a trap and failed to evade it. You took '  + str(0) + ' damage.'
             playerStatsLabel['text'] = 'Health: ' + str(health.get()) + '\nArmor: ' + str(armorVal.get())
             createButtons('next turn')
+            #checks lost conditions
             lostGame()
     #adds one to the turn number because the previous turn has been completed
     turnNumber.set(turnNumber.get() + 1)
@@ -237,7 +285,8 @@ def lostGame():
     checks if the player has lost the game by checking if the health equals 0
     and if whether or not they have reached the maximum amount of turns
     if they did lose the game, then majority of the widgets are removed and a restart
-    button appears giving the user the option to restart the game
+    button appears giving the user the option to restart the game with the option to leave a username for
+    the leaderboard
     '''
     #checks if the users health has reached 0 or below 0 and if the user has reached the maximum amount of turns
     if health.get() <= 0 or turnNumber.get() == 100:
@@ -251,8 +300,10 @@ def lostGame():
         for widget in app.grid_slaves():
             if int(widget.grid_info()['column']) == 1 and int(widget.grid_info()['row']) > 4:
                 widget.destroy()
+        #adds the username label and entry for leaderboard
         usernameLabel.grid()
         usernameEntry.grid()
+        #adds the restart button for the game to restart
         restartButton = tkinter.ttk.Button(app,text='Restart', command=restart)
         restartButton.grid(row=5,column=1)
     #if the user does not lose the game it returns false
@@ -279,6 +330,7 @@ def toggleInv():
         else:
             position = 3
             eventLabel['text'] = 'Your iventory includes:'
+            #displays all the items and necessary information
             for x in inventory:
                 if x['type'] == 'weapon':
                     tkinter.Label(app,text= x["name"] + ' - Attack: ' + str(x['attack_inf'])).grid(row=position,column=1)
@@ -288,6 +340,7 @@ def toggleInv():
                     tkinter.Label(app,text= x["name"] + ' - ' + str(x['effect'])).grid(row=position,column=1)
                 if x['name'] == 'Health Potion':
                     tkinter.ttk.Button(app,text='Use',command=lambda name=x['name']: useItem(name)).grid(row=position,column=3)
+                #creates drop button for all items in the inventory if the user wishes to drop an item
                 tkinter.ttk.Button(app,text='Drop ' + x['name'],command= lambda name=x['name']: drop(name)).grid(row=position,column=2)
                 position += 1
         toggle = False
@@ -306,7 +359,6 @@ def useItem(itemName):
     this function computes if the user wants to use an item in their inventory
     first it checks if the user has the item in their inventory that was inputted in the commmand box
     then it gets rid of the item from their inventory and applies the necessary effect of the item
-    if the user does not have the item that they inputted in their inventory, then they are greeted with an error text
     '''
     hasItem = False
     count = 0
@@ -340,15 +392,24 @@ def useItem(itemName):
         toggleInv()
 
 def drop(item):
+    '''
+    this function computes if the user wants to drop an item in their inventory
+    first it checks if the user has the item in their inventory that was inputted from the function parameters
+    then it gets rid of the item from their inventory
+    '''
     for x in inventory:
+        #if there is an item in the inventory that matches the item the user wants to drop
         if item == x['name']:
             print(x['name'] + ' has beed dropped')
+            #if the item is a backpack that the user wants to drop, then the inventory size is decreased
             if x['name'] == 'Backpack':
                 inventorySize.set(inventorySize.get() - 2)
+            #if the item is an armor type that the user wants to drop, then the armor value is decreased accordingly
             elif x['type'] == 'armor':
                 armorVal.set(armorVal.get() - x["defense"])
                 playerStatsLabel['text'] = 'Health: ' + str(health.get()) + '\nArmor: ' + str(armorVal.get())
             inventory.remove(x)
+            #refreshes inventory to depict dropeed item
             toggleInv()
             toggleInv()
             break
@@ -398,13 +459,14 @@ def restart():
 
 def showLeaderboard():
     '''
-    shows leaderboard
+    shows leaderboard with usernames and the connected scores in order
     '''
     global toggle_leaderboard
     global temp_leaderboard
     if toggle_leaderboard == True:
         temp_leaderboard = eventLabel['text']
         leaderboard['text'] = 'Hide Leaderboard'
+        #if there is no one in the leaderboards yet, depicts following message
         if len(leaderboard_dict) == 0:
                 eventLabel['text'] = 'There is no user saved in the leaderboards yet.'
         #if there are leaderboards saved, it is displayed in the GUI
@@ -422,8 +484,10 @@ def showLeaderboard():
         toggle_leaderboard = False
     elif toggle_leaderboard == False:
         leaderboard['text'] = "Leaderboard"
+        #sets the event label back to the temporary one that was saved when the leaderboards were first shown
         eventLabel['text'] = temp_leaderboard
         toggle_leaderboard = True
+        #destroys all the widgets that include the usernames and the corresponding scores
         for widget in app.grid_slaves():
             if (int(widget.grid_info()['column']) >= 1 or int(widget.grid_info()['column']) <= 3) and (int(widget.grid_info()['row']) > 2 and int(widget.grid_info()['row']) < 17):
                 widget.destroy()
@@ -502,6 +566,7 @@ restartButton.grid_remove()
 invButton = tkinter.ttk.Button(app,text='Show Inventory',command=toggleInv)
 invButton.grid(row=0,column=0)
 
+#creates the buttons for the start of the game
 createButtons('start')
 
 app.mainloop()
