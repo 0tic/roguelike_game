@@ -8,7 +8,6 @@ import json
 #TODO:
 #use health potions somehow drops random items from inv
 #able to not click an option and submit next command and bypass situation?
-#does monster health reset after mid attack then a successful run?
 
 #loads all the monster, trap, and item data from the JSON file
 with open('encountersWDice.json') as json_data:
@@ -203,6 +202,7 @@ def run():
     #if the user successfully runs away from the monster, they are prompted with the following message
     else:
         eventLabel['text'] = 'You have successfully ran away from ' + monster['name'] + '.'
+        monster['health'] = tempHealth.get()
         createButtons('next turn')
 
 def nextScenario():

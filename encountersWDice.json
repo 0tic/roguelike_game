@@ -4,7 +4,7 @@
         {"name":"Ice Mephit","health":21,"attack_inf":"1d4+1","bonus_atk":1,"attack_mult":1,"attack_di":4},
         {"name":"Hook Horror","health":75,"attack_inf":"2d6+4","bonus_atk":4,"attack_mult":2,"attack_di":6},
         {"name":"Carrion Crawler","health":51,"attack_inf":"1d6+2","bonus_atk":2,"attack_mult":1,"attack_di":6},
-        {"name":"Pit Fiend","health":300,"attack_inf":"4d6+8","bonus_atk":8,"attack_mult":4,"attack_di":20},
+        {"name":"Pit Fiend","health":300,"attack_inf":"4d6+8","bonus_atk":8,"attack_mult":4,"attack_di":6},
         {"name":"Chuul","health":93,"attack_inf":"2d6+4","bonus_atk":4,"attack_mult":2,"attack_di":6},
         {"name":"Dust Mephit","health":17,"attack_inf":"1d4+2","bonus_atk":2,"attack_mult":1,"attack_di":4},
         {"name":"Flesh Golem","health":93,"attack_inf":"2d8+4","bonus_atk":4,"attack_mult":2,"attack_di":8},
